@@ -2,7 +2,7 @@ from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelRequest, ModelResponse, wrap_model_call, wrap_tool_call
 from langchain.agents.structured_output import ToolStrategy
-from langchain.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain.messages import HumanMessage
 from langchain.tools import tool
 from logging import basicConfig, INFO, getLogger
 from pydantic import BaseModel, Field
