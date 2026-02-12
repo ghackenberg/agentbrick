@@ -2,7 +2,11 @@ from langchain.messages import AIMessage, HumanMessage
 from langgraph.graph import END, START, StateGraph
 from logging import getLogger
 
-from agentbrick.agents import generate_description_agent, extract_components_agent, extract_interfaces_agent
+from agentbrick.agents import (
+    generate_description_agent,
+    extract_components_agent,
+    extract_interfaces_agent,
+)
 from agentbrick.workflows.states import MainWorkflowState
 
 logger = getLogger(__name__)
@@ -43,9 +47,24 @@ def extract_components(state: MainWorkflowState) -> MainWorkflowState:
         logger.warning(f"Unexpected message type: {type(message)}")
     return state
 
+
 def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
     answer = extract_interfaces_agent.invoke(
-        {"messages": [HumanMessage("DESCRIPTION:\n" + state["description"] + "\n\n---\n\nCOMPONENTS:\n" + "\n".join([f"{c['name']} - {c['description']}" for c in state["components"]]))]}
+        {
+            "messages": [
+                HumanMessage(
+                    "DESCRIPTION:\n"
+                    + state["description"]
+                    + "\n\n---\n\nCOMPONENTS:\n"
+                    + "\n".join(
+                        [
+                            f"{c['name']} - {c['description']}"
+                            for c in state["components"]
+                        ]
+                    )
+                )
+            ]
+        }
     )
     message = answer["messages"][-1]
     if isinstance(message, AIMessage):
@@ -63,14 +82,16 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
                             "description": description.strip(),
                         }
                     )
-                    logger.info(f"Interface: {component1} <-> {component2} : {description}")
+                    logger.info(
+                        f"Interface: {component1} <-> {component2} : {description}"
+                    )
                 else:
                     logger.warning(f"Skipping empty line: {line}")
         else:
             logger.warning(f"Unexpected content type: {type(content)}")
     else:
         logger.warning(f"Unexpected message type: {type(message)}")
-    return state    
+    return state
 
 
 main_workflow_graph = StateGraph(MainWorkflowState)
