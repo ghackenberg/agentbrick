@@ -8,4 +8,4 @@ logger = getLogger(__name__)
 
 # Invoke agent
 
-main_workflow.invoke({"prompt": "House"})
+main_workflow.invoke({"prompt": "House", "architecture_description": None, "architecture_top_level_component_names": None})

@@ -1,27 +1,27 @@
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy
-from logging import getLogger
 
+from agentbrick.agents.middlewares import log_model_call, log_tool_call
 from agentbrick.agents.responses import ArchitectureModelAgentResponse
 from agentbrick.models import llama3_2_3b
 
-logger = getLogger(__name__)
 
-
+middlewares = [log_model_call, log_tool_call]
 
 # Architecture Description Agent
 
 architecture_description_agent = create_agent(
     llama3_2_3b,
-    system_prompt="You are an archtecture description agent. You take a natural language description of something, the user wants to build, and you output a structured description of the architecture of that thing.",
+    middleware=middlewares,
+    system_prompt="You take a user input and generate a detailed description of the LEGO model."
 )
 
 # Architecture Model Agent
 
 architecture_model_agent = create_agent(
     llama3_2_3b,
-    system_prompt="You are an architecture model agent. You take a structured description of the architecture of something, and you output a structured description of the components needed to build that thing.",
-    response_format=ToolStrategy(ArchitectureModelAgentResponse)
+    middleware=middlewares,
+    system_prompt="You take a detailed description of a LEGO model and extract a complete list of top-level logical component names (no bricks). You only output the component names separated by line breaks. You do NOT output additional text!"
 )
 
 # Other Agents ...

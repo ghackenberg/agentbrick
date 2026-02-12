@@ -13,30 +13,22 @@ def call_architecture_description_agent(state: MainWorkflowState) -> MainWorkflo
     answer = architecture_description_agent.invoke(
         {"messages": [HumanMessage(state["prompt"])]}
     )
-    logger.info(answer["messages"][-1].content)
     state["architecture_description"] = answer["messages"][-1].content
     return state
 
-def call_architect_agent(state: MainWorkflowState) -> MainWorkflowState:
+def call_architecture_model_agent(state: MainWorkflowState) -> MainWorkflowState:
     answer = architecture_model_agent.invoke(
-        {"messages": [HumanMessage(state["prompt"]), AIMessage(state["architecture_description"])]}
+        {"messages": [HumanMessage(state["architecture_description"])]}
     )
-    if "structured_response" in answer:
-        structured_response = answer["structured_response"]
-        if isinstance(structured_response, ArchitectureModelAgentResponse):
-            state["architecture"] = structured_response.root
-        else:
-            logger.warning(
-                f"Unexpected structured response type: {type(structured_response)}"
-            )
-    else:
-        logger.warning("No structured response found.")
+    state["architecture_top_level_component_names"] = answer["messages"][-1].content.splitlines()
+    for component in state["architecture_top_level_component_names"]:
+        logger.info(f"Identified component: {component}")
     return state
 
 
 main_workflow_graph = StateGraph(MainWorkflowState)
 main_workflow_graph.add_node("architecture_description_agent", call_architecture_description_agent)
-main_workflow_graph.add_node("architecture_model_agent", architecture_model_agent)
+main_workflow_graph.add_node("architecture_model_agent", call_architecture_model_agent)
 main_workflow_graph.add_edge(START, "architecture_description_agent")
 main_workflow_graph.add_edge("architecture_description_agent", "architecture_model_agent")
 main_workflow_graph.add_edge("architecture_model_agent", END)

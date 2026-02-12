@@ -17,8 +17,10 @@ logger = getLogger(__name__)
 def log_model_call(
     request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]
 ) -> ModelResponse:
-    logger.debug(f"Model call: {request.messages[-1].content}")
-    return handler(request)
+    logger.info(f"Model reqest: {request}")
+    response = handler(request)
+    logger.info(f"Model response: {response}")
+    return response
 
 
 @wrap_tool_call
@@ -26,5 +28,7 @@ def log_tool_call(
     request: ToolCallRequest,
     handler: Callable[[ToolCallRequest], ToolMessage | Command],
 ) -> ToolMessage | Command:
-    logger.debug(f"Tool call: {request.tool_call['name']}({request.tool_call['args']})")
-    return handler(request)
+    logger.info(f"Tool call request: {request.tool_call['name']}({request.tool_call['args']})")
+    response = handler(request)
+    logger.info(f"Tool call response: {response}")
+    return response
