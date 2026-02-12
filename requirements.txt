@@ -1,2 +1,6 @@
+black
 langchain
 langchain-ollama
+langgraph
+pydantic
+pyright
