@@ -28,7 +28,9 @@ def log_tool_call(
     request: ToolCallRequest,
     handler: Callable[[ToolCallRequest], ToolMessage | Command],
 ) -> ToolMessage | Command:
-    logger.info(f"Tool call request: {request.tool_call['name']}({request.tool_call['args']})")
+    logger.info(
+        f"Tool call request: {request.tool_call['name']}({request.tool_call['args']})"
+    )
     response = handler(request)
     logger.info(f"Tool call response: {response}")
     return response

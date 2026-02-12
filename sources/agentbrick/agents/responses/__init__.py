@@ -13,7 +13,10 @@ class ArchitectureModelComponent(BaseModel):
     height: float = Field(description="Height of the component in LEGO units.")
     length: float = Field(description="Length of the component in LEGO units.")
 
+
 class ArchitectureModelAgentResponse(BaseModel):
     """Response from the architecture model agent."""
 
-    components: List[ArchitectureModelComponent] = Field(description="List of components in the architecture model.")
+    components: List[ArchitectureModelComponent] = Field(
+        description="List of components in the architecture model."
+    )
