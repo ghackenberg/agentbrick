@@ -1,20 +1,16 @@
-from logging import getLogger
 from pydantic import BaseModel, Field
 from typing import List
 
-logger = getLogger(__name__)
 
+class ArchitectureModelNode(BaseModel):
+    """Node in the architecture model."""
 
-class Component(BaseModel):
-    """Component of the LEGO model."""
+    name: str = Field(description="Name of the node.")
+    children: List["ArchitectureModelNode"] = Field(
+        default_factory=list, description="Child nodes in the architecture model."
+    )
 
-    name: str = Field(description="Name of the component.")
-    width: float = Field(description="Width of the component in LEGO units.")
-    height: float = Field(description="Height of the component in LEGO units.")
-    length: float = Field(description="Length of the component in LEGO units.")
+class ArchitectureModelAgentResponse(BaseModel):
+    """Response from the architecture model agent."""
 
-
-class ComponentList(BaseModel):
-    """Decomposition of the LEGO model into components."""
-
-    components: List[Component] = Field(description="List of components.")
+    root: ArchitectureModelNode = Field(description="Root node of the architecture model.")

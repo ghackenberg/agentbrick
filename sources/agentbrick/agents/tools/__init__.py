@@ -1,7 +1,4 @@
 from langchain.tools import tool
-from logging import getLogger
-
-logger = getLogger(__name__)
 
 
 @tool

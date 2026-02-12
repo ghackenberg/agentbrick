@@ -2,26 +2,26 @@ from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy
 from logging import getLogger
 
-from agentbrick.agents.middlewares import log_model_call, log_tool_call
-from agentbrick.agents.responses import ComponentList
-from agentbrick.agents.tools import calculate_sum
+from agentbrick.agents.responses import ArchitectureModelAgentResponse
 from agentbrick.models import llama3_2_3b
 
 logger = getLogger(__name__)
 
 
-middleware = [log_model_call, log_tool_call]
 
-tools = [calculate_sum]
+# Architecture Description Agent
 
-system_prompt = "Divide the LEGO model into components."
-
-response_format = ToolStrategy(ComponentList)
-
-agent = create_agent(
+architecture_description_agent = create_agent(
     llama3_2_3b,
-    middleware=middleware,
-    tools=tools,
-    system_prompt=system_prompt,
-    response_format=response_format,
+    system_prompt="You are an archtecture description agent. You take a natural language description of something, the user wants to build, and you output a structured description of the architecture of that thing.",
 )
+
+# Architecture Model Agent
+
+architecture_model_agent = create_agent(
+    llama3_2_3b,
+    system_prompt="You are an architecture model agent. You take a structured description of the architecture of something, and you output a structured description of the components needed to build that thing.",
+    response_format=ToolStrategy(ArchitectureModelAgentResponse)
+)
+
+# Other Agents ...
