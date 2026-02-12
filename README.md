@@ -21,6 +21,16 @@
   - [main.py](./sources/main.py) - Main program
 - [requirements.txt](./requirements.txt) - Project dependencies
 
+## User guide
+
+```python
+from agentbrick.workflows import main_workflow
+
+main_workflow.invoke({ "prompt": "House" })
+main_workflow.invoke({ "prompt": "Pirate ship" })
+main_workflow.invoke({ "prompt": "Princess castle" })
+```
+
 ## Developer guide
 
 Install dependencies
