@@ -12,7 +12,7 @@ logger = getLogger(__name__)
 main_workflow.invoke(
     {
         "prompt": argv[1] if len(argv) > 1 else "House",
-        "architecture_description": None,
-        "architecture_top_level_component_names": None,
+        "description": None,
+        "components": None,
     }
 )

@@ -1,7 +1,12 @@
 from typing import List, TypedDict
 
 
+class ModelComponent(TypedDict):
+    name: str
+    description: str
+
+
 class MainWorkflowState(TypedDict):
     prompt: str
-    architecture_description: str | None
-    architecture_top_level_component_names: List[str] | None
+    description: str | None
+    components: List[ModelComponent] | None
