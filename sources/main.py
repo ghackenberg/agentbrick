@@ -1,4 +1,5 @@
 from logging import basicConfig, INFO, getLogger
+from sys import argv
 
 from agentbrick.workflows import main_workflow
 
@@ -10,7 +11,7 @@ logger = getLogger(__name__)
 
 main_workflow.invoke(
     {
-        "prompt": "House",
+        "prompt": argv[1] if len(argv) > 1 else "House",
         "architecture_description": None,
         "architecture_top_level_component_names": None,
     }
