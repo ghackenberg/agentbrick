@@ -1,10 +1,10 @@
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy
 
-from agentbrick.schemas import ComponentList
-from agentbrick.middlewares import log_model_call, log_tool_call
+from agentbrick.agents.middlewares import log_model_call, log_tool_call
+from agentbrick.agents.responses import ComponentList
+from agentbrick.agents.tools import calculate_sum
 from agentbrick.models import llama3_2_3b
-from agentbrick.tools import calculate_sum
 
 middleware = [log_model_call, log_tool_call]
 

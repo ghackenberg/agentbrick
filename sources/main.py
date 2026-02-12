@@ -2,7 +2,7 @@ from langchain.messages import HumanMessage
 from logging import basicConfig, INFO, getLogger
 
 from agentbrick.agents import agent
-from agentbrick.schemas import ComponentList
+from agentbrick.agents.responses import ComponentList
 
 basicConfig(level=INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
