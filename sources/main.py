@@ -14,5 +14,6 @@ main_workflow.invoke(
         "prompt": argv[1] if len(argv) > 1 else "House",
         "description": None,
         "components": None,
+        "interfaces": None,
     }
 )
