@@ -1,10 +1,14 @@
 from langchain.agents import create_agent
 from langchain.agents.structured_output import ToolStrategy
+from logging import getLogger
 
 from agentbrick.agents.middlewares import log_model_call, log_tool_call
 from agentbrick.agents.responses import ComponentList
 from agentbrick.agents.tools import calculate_sum
 from agentbrick.models import llama3_2_3b
+
+logger = getLogger(__name__)
+
 
 middleware = [log_model_call, log_tool_call]
 

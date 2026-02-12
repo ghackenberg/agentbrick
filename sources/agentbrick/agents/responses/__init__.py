@@ -1,5 +1,8 @@
+from logging import getLogger
 from pydantic import BaseModel, Field
 from typing import List
+
+logger = getLogger(__name__)
 
 
 class Component(BaseModel):
