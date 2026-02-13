@@ -6,7 +6,7 @@ from agentbrick.agents import (
     generate_description_agent,
     extract_components_agent,
     extract_interfaces_agent,
-    generate_grid_configuration_agent
+    generate_grid_configuration_agent,
 )
 from agentbrick.workflows.states import MainWorkflowState
 
@@ -32,14 +32,21 @@ def extract_components(state: MainWorkflowState) -> MainWorkflowState:
             state["components"] = []
             for line in content.splitlines():
                 if line.strip():
-                    name, description = line.split(" - ", 1)
+                    name_and_abbreviation, description = line.split(" - ", 2)
+                    name = name_and_abbreviation.rsplit("(", 1)[0].strip()
+                    abbreviation = (
+                        name_and_abbreviation.rsplit("(", 1)[1].rstrip(")").strip()
+                    )
                     state["components"].append(
                         {
                             "name": name.strip(),
+                            "abbreviation": abbreviation.strip(),
                             "description": description.strip(),
                         }
                     )
-                    logger.info(f"Component: {name} - {description}")
+                    logger.info(
+                        f"Component: {name} ({abbreviation}) - {description.strip()}"
+                    )
                 else:
                     logger.warning(f"Skipping empty line: {line}")
         else:
@@ -59,8 +66,8 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
                         [
-                            f"{i+1}. {c['name']} - {c['description']}"
-                            for i, c in enumerate(state.get("components", []))
+                            f"{c['name']} ({c['abbreviation']}) - {c['description']}"
+                            for c in state.get("components", [])
                         ]
                     )
                 )
@@ -94,6 +101,7 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
         logger.warning(f"Unexpected message type: {type(message)}")
     return state
 
+
 def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
     answer = generate_grid_configuration_agent.invoke(
         {
@@ -104,8 +112,8 @@ def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
                         [
-                            f"{i+1}. {c['name']} - {c['description']}"
-                            for i, c in enumerate(state.get("components", []))
+                            f"{c['name']} ({c['abbreviation']}) - {c['description']}"
+                            for c in state.get("components", [])
                         ]
                     )
                     + "\n\n---\n\nINTERFACES:\n"

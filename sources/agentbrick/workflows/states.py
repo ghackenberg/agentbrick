@@ -3,6 +3,7 @@ from typing import List, NotRequired, TypedDict
 
 class ModelComponent(TypedDict):
     name: str
+    abbreviation: str
     description: str
 
 
