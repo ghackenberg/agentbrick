@@ -107,14 +107,14 @@ def define_cells(state: MainWorkflowState) -> MainWorkflowState:
                     + "\n\n---\n\nCURRENT GRID CONFIGURATION:\n"
                     + "\n".join(
                         (
-                            f"z={l['z']}:\n"
+                            f"z={z}:\n"
                             + "\n".join(
                                 [
-                                    f"y={r['y']}: " + "; ".join(r["cells"])
-                                    for r in l["rows"]
+                                    f"y={y}: " + "; ".join(r["cells"])
+                                    for y, r in enumerate(l["rows"])
                                 ]
                             )
-                            for l in layers
+                            for z, l in enumerate(layers)
                         )
                         if layers
                         else "None"
@@ -129,9 +129,9 @@ def define_cells(state: MainWorkflowState) -> MainWorkflowState:
         if isinstance(content, str):
             logger.info(f"Cell x={next_x}, y={next_y}, z={next_z}: {content}")
             if next_z == 0:
-                layers.append({"z": next_z, "rows": []})
+                layers.append({"rows": []})
             if next_y == 0:
-                layers[next_z]["rows"].append({"y": next_y, "cells": []})
+                layers[next_z]["rows"].append({"cells": []})
             layers[next_z]["rows"][next_y]["cells"].append(content)
             state["layers"] = layers
             state["next_x"] = (next_x + 1) % state["size_x"]
@@ -141,7 +141,7 @@ def define_cells(state: MainWorkflowState) -> MainWorkflowState:
             state["next_z"] = (
                 next_z + 1 if state["next_y"] == 0 and state["next_x"] == 0 else next_z
             )
-            if next_x == 0 and next_y == 0:
+            if state["next_x"] == 0 and state["next_y"] == 0:
                 visualize_grid_configuration(state)
         else:
             logger.warning(f"Unexpected content type: {type(content)}")

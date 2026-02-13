@@ -13,12 +13,10 @@ class ModelInterface(TypedDict):
 
 
 class ModelRow(TypedDict):
-    y: int
     cells: List[str]
 
 
 class ModelLayer(TypedDict):
-    z: int
     rows: List[ModelRow]
 
 

@@ -92,25 +92,21 @@ def visualize_grid_configuration(state: MainWorkflowState) -> None:
 
     voxels = zeros((state.get("size_x", 0), state.get("size_y", 0), state.get("size_z", 0)), dtype=bool)
 
-    for layer in state.get("layers", []):
-        z = layer["z"]
-        for row in layer["rows"]:
-            y = row["y"]
+    for z, layer in enumerate(state.get("layers", [])):
+        for y, row in enumerate(layer["rows"]):
             for x, cell in enumerate(row["cells"]):
-                if cell != "EMPTY":
+                if cell.upper() != "EMPTY":
                     voxels[x, y, z] = True
     
     facecolors = zeros((state.get("size_x", 0), state.get("size_y", 0), state.get("size_z", 0)), dtype=str)
 
-    for layer in state.get("layers", []):
-        z = layer["z"]
-        for row in layer["rows"]:
-            y = row["y"]
+    for z, layer in enumerate(state.get("layers", [])):
+        for y, row in enumerate(layer["rows"]):
             for x, cell in enumerate(row["cells"]):
-                if cell != "EMPTY":
-                    if cell not in colors:
-                        colors[cell] = COLORS[len(colors) % len(COLORS)]
-                    facecolors[x, y, z] = colors[cell]
+                if cell.upper() != "EMPTY":
+                    if cell.upper() not in colors:
+                        colors[cell.upper()] = COLORS[len(colors) % len(COLORS)]
+                    facecolors[x, y, z] = colors[cell.upper()]
 
     ax = figure().add_subplot(projection="3d")
     ax.voxels(voxels, facecolors=facecolors, edgecolor="gray")
