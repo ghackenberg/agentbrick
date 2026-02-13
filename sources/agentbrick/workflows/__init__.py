@@ -6,6 +6,7 @@ from agentbrick.agents import (
     generate_description_agent,
     extract_components_agent,
     extract_interfaces_agent,
+    generate_grid_configuration_agent
 )
 from agentbrick.workflows.states import MainWorkflowState
 
@@ -58,8 +59,8 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
                         [
-                            f"{c['name']} - {c['description']}"
-                            for c in state.get("components", [])
+                            f"{i+1}. {c['name']} - {c['description']}"
+                            for i, c in enumerate(state.get("components", []))
                         ]
                     )
                 )
@@ -93,16 +94,54 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
         logger.warning(f"Unexpected message type: {type(message)}")
     return state
 
+def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
+    answer = generate_grid_configuration_agent.invoke(
+        {
+            "messages": [
+                HumanMessage(
+                    "DESCRIPTION:\n"
+                    + state.get("description", "")
+                    + "\n\n---\n\nCOMPONENTS:\n"
+                    + "\n".join(
+                        [
+                            f"{i+1}. {c['name']} - {c['description']}"
+                            for i, c in enumerate(state.get("components", []))
+                        ]
+                    )
+                    + "\n\n---\n\nINTERFACES:\n"
+                    + "\n".join(
+                        [
+                            f"{i['component1']} <-> {i['component2']} : {i['description']}"
+                            for i in state.get("interfaces", [])
+                        ]
+                    )
+                )
+            ]
+        }
+    )
+    message = answer["messages"][-1]
+    if isinstance(message, AIMessage):
+        content = message.content
+        if isinstance(content, str):
+            logger.info(f"Grid configuration:\n{content}")
+        else:
+            logger.warning(f"Unexpected content type: {type(content)}")
+    else:
+        logger.warning(f"Unexpected message type: {type(message)}")
+    return state
+
 
 main_workflow_graph = StateGraph(MainWorkflowState)
 
 main_workflow_graph.add_node("generate_description", generate_description)
 main_workflow_graph.add_node("extract_components", extract_components)
 main_workflow_graph.add_node("extract_interfaces", extract_interfaces)
+main_workflow_graph.add_node("generate_grid_configuration", generate_grid_configuration)
 
 main_workflow_graph.add_edge(START, "generate_description")
 main_workflow_graph.add_edge("generate_description", "extract_components")
 main_workflow_graph.add_edge("extract_components", "extract_interfaces")
-main_workflow_graph.add_edge("extract_interfaces", END)
+main_workflow_graph.add_edge("extract_interfaces", "generate_grid_configuration")
+main_workflow_graph.add_edge("generate_grid_configuration", END)
 
 main_workflow = main_workflow_graph.compile()
