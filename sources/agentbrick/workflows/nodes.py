@@ -8,6 +8,11 @@ from agentbrick.agents import (
     generate_grid_configuration_agent,
 )
 from agentbrick.workflows.states import MainWorkflowState
+from agentbrick.workflows.helpers import (
+    parse_components,
+    parse_interfaces,
+    visualize_components_and_interfaces,
+)
 
 logger = getLogger(__name__)
 
@@ -28,26 +33,7 @@ def extract_components(state: MainWorkflowState) -> MainWorkflowState:
     if isinstance(message, AIMessage):
         content = message.content
         if isinstance(content, str):
-            state["components"] = []
-            for line in content.splitlines():
-                if line.strip():
-                    name_and_abbreviation, description = line.split(" - ", 2)
-                    name = name_and_abbreviation.rsplit("(", 1)[0].strip()
-                    abbreviation = (
-                        name_and_abbreviation.rsplit("(", 1)[1].rstrip(")").strip()
-                    )
-                    state["components"].append(
-                        {
-                            "name": name.strip(),
-                            "abbreviation": abbreviation.strip(),
-                            "description": description.strip(),
-                        }
-                    )
-                    logger.info(
-                        f"Component: {name} ({abbreviation}) - {description.strip()}"
-                    )
-                else:
-                    logger.warning(f"Skipping empty line: {line}")
+            state["components"] = parse_components(content)
         else:
             logger.warning(f"Unexpected content type: {type(content)}")
     else:
@@ -77,23 +63,8 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
     if isinstance(message, AIMessage):
         content = message.content
         if isinstance(content, str):
-            state["interfaces"] = []
-            for line in content.splitlines():
-                if line.strip():
-                    components, description = line.split(" : ", 1)
-                    component1, component2 = components.split(" <-> ")
-                    state["interfaces"].append(
-                        {
-                            "component1": component1.strip(),
-                            "component2": component2.strip(),
-                            "description": description.strip(),
-                        }
-                    )
-                    logger.info(
-                        f"Interface: {component1} <-> {component2} : {description}"
-                    )
-                else:
-                    logger.warning(f"Skipping empty line: {line}")
+            state["interfaces"] = parse_interfaces(content)
+            visualize_components_and_interfaces(state)
         else:
             logger.warning(f"Unexpected content type: {type(content)}")
     else:

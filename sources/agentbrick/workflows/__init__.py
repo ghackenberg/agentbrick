@@ -5,7 +5,7 @@ from agentbrick.workflows.nodes import (
     generate_description,
     extract_components,
     extract_interfaces,
-    generate_grid_configuration
+    generate_grid_configuration,
 )
 from agentbrick.workflows.states import MainWorkflowState
 
