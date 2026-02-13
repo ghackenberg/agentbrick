@@ -2,5 +2,7 @@ black
 langchain
 langchain-ollama
 langgraph
+matplotlib
+networkx
 pydantic
 pyright
