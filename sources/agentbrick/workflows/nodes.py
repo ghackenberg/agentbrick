@@ -5,13 +5,14 @@ from agentbrick.agents import (
     generate_description_agent,
     extract_components_agent,
     extract_interfaces_agent,
-    generate_grid_configuration_agent,
+    define_cells_agent,
 )
 from agentbrick.workflows.states import MainWorkflowState
 from agentbrick.workflows.helpers import (
     parse_components,
     parse_interfaces,
     visualize_components_and_interfaces,
+    visualize_grid_configuration,
 )
 
 logger = getLogger(__name__)
@@ -51,7 +52,7 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
                         [
-                            f"{c['name']} ({c['abbreviation']}) - {c['description']}"
+                            f"{c['name']} - {c['description']}"
                             for c in state.get("components", [])
                         ]
                     )
@@ -72,8 +73,14 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
     return state
 
 
-def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
-    answer = generate_grid_configuration_agent.invoke(
+def define_cells(state: MainWorkflowState) -> MainWorkflowState:
+    layers = state.get("layers", [])
+
+    next_x = state.get("next_x", 0)
+    next_y = state.get("next_y", 0)
+    next_z = state.get("next_z", 0)
+
+    answer = define_cells_agent.invoke(
         {
             "messages": [
                 HumanMessage(
@@ -82,7 +89,7 @@ def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
                         [
-                            f"{c['name']} ({c['abbreviation']}) - {c['description']}"
+                            f"{c['name']} - {c['description']}"
                             for c in state.get("components", [])
                         ]
                     )
@@ -93,6 +100,25 @@ def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
                             for i in state.get("interfaces", [])
                         ]
                     )
+                    + "\n\n---\n\nGRID SIZE:\n"
+                    + f"x={state['size_x']}, y={state['size_y']}, z={state['size_z']}"
+                    + "\n\n---\n\nNEXT CELL:\n"
+                    + f"x={next_x}, y={next_y}, z={next_z}"
+                    + "\n\n---\n\nCURRENT GRID CONFIGURATION:\n"
+                    + "\n".join(
+                        (
+                            f"z={l['z']}:\n"
+                            + "\n".join(
+                                [
+                                    f"y={r['y']}: " + "; ".join(r["cells"])
+                                    for r in l["rows"]
+                                ]
+                            )
+                            for l in layers
+                        )
+                        if layers
+                        else "None"
+                    )
                 )
             ]
         }
@@ -101,7 +127,22 @@ def generate_grid_configuration(state: MainWorkflowState) -> MainWorkflowState:
     if isinstance(message, AIMessage):
         content = message.content
         if isinstance(content, str):
-            logger.info(f"Grid configuration:\n{content}")
+            logger.info(f"Cell x={next_x}, y={next_y}, z={next_z}: {content}")
+            if next_z == 0:
+                layers.append({"z": next_z, "rows": []})
+            if next_y == 0:
+                layers[next_z]["rows"].append({"y": next_y, "cells": []})
+            layers[next_z]["rows"][next_y]["cells"].append(content)
+            state["layers"] = layers
+            state["next_x"] = (next_x + 1) % state["size_x"]
+            state["next_y"] = (
+                (next_y + 1) % state["size_y"] if state["next_x"] == 0 else next_y
+            )
+            state["next_z"] = (
+                next_z + 1 if state["next_y"] == 0 and state["next_x"] == 0 else next_z
+            )
+            if next_x == 0 and next_y == 0:
+                visualize_grid_configuration(state)
         else:
             logger.warning(f"Unexpected content type: {type(content)}")
     else:

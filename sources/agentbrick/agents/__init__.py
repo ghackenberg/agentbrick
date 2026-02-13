@@ -3,7 +3,7 @@ from langchain.agents import create_agent
 from agentbrick.agents.middlewares import log_model_call, log_tool_call
 from agentbrick.models import llama3_2_3b
 
-middlewares = [log_model_call, log_tool_call]
+middlewares = []  # [log_model_call, log_tool_call]
 
 # Generate Description Agent
 
@@ -23,7 +23,7 @@ extract_components_agent = create_agent(
     middleware=middlewares,
     system_prompt=(
         "You take a detailed description of a LEGO model and extract a COMPLETE list of logical components (i.e. logical groups of connected bricks) from which the ENTIRE LEGO model can be assembled."
-        " For each component, you output one line with the following pattern: '[Unique and concise component name] ([Unique component abbreviation]) - [Brief component description]'."
+        " For each component, you output one line with the following pattern: '[Unique and concise component name] - [Brief component description]'."
         " You do NOT output ANY additional text!"
     ),
 )
@@ -36,24 +36,19 @@ extract_interfaces_agent = create_agent(
     system_prompt=(
         "You take a detailed description of a LEGO model and a list of top-level components and extract the interfaces between the components."
         " An interface is a shared surface between two components where they connect."
-        " For each interface, you output one line with the following pattern: '[Component abbreviation 1] <-> [Component abbreviation 2] : [Brief description of the interface]'."
+        " For each interface, you output one line with the following pattern: '[Component name 1] <-> [Component name 2] : [Brief description of the interface]'."
         " You do NOT output ANY additional text!"
     ),
 )
 
-# Generate Grid Configuration Agent
+# Define Cells Agent
 
-generate_grid_configuration_agent = create_agent(
+define_cells_agent = create_agent(
     llama3_2_3b,
     middleware=middlewares,
     system_prompt=(
-        "You take a detailed description of a LEGO model, a list of top-level components, a list of interfaces between the components, and output a 3D grid configuration."
-        " You describe the 3D grid configuration layer by layer starting at the bottom layer (z=0) and ending at the top layer (z=10 MANDATORY)."
-        " In the output, you start each 2D layer with a line 'Layer z=[z-value]:' followed by the 2D layer configuration."
-        " You describe the 2D layer configuration row by row starting at the front row (y=0) and ending at the back row (y=10 MANDATORY)."
-        " In the output, you start each row with a line 'Row y=[y-value]:' followed by the 2D row configuration."
-        " You describe the 2D row configuration in one line, cell by cell separated by semi-colons, starting at the leftmost cell (x=0) and ending at the rightmost cell (x=10 MANDATORY)."
-        " In the output, you represent each cell with the abbreviation of the component that occupies the cell or '0' if the cell is empty."
+        "You define the content of the next grid cell based on the model description, the list of logical components and their interfaces, and the current grid configuration."
+        " You either output 'EMPTY' or the name of a SINGLE component from the list of logical components."
         " You do NOT output ANY additional text!"
     ),
 )
