@@ -12,8 +12,8 @@ getLogger("httpx").setLevel(ERROR)
 main_workflow.invoke(
     {
         "prompt": argv[1] if len(argv) > 1 else "House",
-        "size_x": 10,
-        "size_y": 10,
-        "size_z": 10,
+        "size_x": 5,
+        "size_y": 5,
+        "size_z": 5,
     }
 )

@@ -20,7 +20,16 @@ logger = getLogger(__name__)
 
 def generate_description(state: MainWorkflowState) -> MainWorkflowState:
     answer = generate_description_agent.invoke(
-        {"messages": [HumanMessage(state["prompt"])]}
+        {
+            "messages": [
+                HumanMessage(
+                    "PROMPT:\n"
+                    + state["prompt"]
+                    + "\n\n---\n\nGRID SIZE:\n"
+                    + f"x={state['size_x']}, y={state['size_y']}, z={state['size_z']}"
+                )
+            ]
+        }
     )
     state["description"] = answer["messages"][-1].content
     return state
@@ -28,7 +37,18 @@ def generate_description(state: MainWorkflowState) -> MainWorkflowState:
 
 def extract_components(state: MainWorkflowState) -> MainWorkflowState:
     answer = extract_components_agent.invoke(
-        {"messages": [HumanMessage(state.get("description", ""))]}
+        {
+            "messages": [
+                HumanMessage(
+                    "PROMPT:\n"
+                    + state["prompt"]
+                    + "\n\n---\n\nGRID SIZE:\n"
+                    + f"x={state['size_x']}, y={state['size_y']}, z={state['size_z']}"
+                    + "\n\n---\n\nDESCRIPTION:\n"
+                    + state.get("description", "")
+                )
+            ]
+        }
     )
     message = answer["messages"][-1]
     if isinstance(message, AIMessage):
@@ -47,7 +67,11 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
         {
             "messages": [
                 HumanMessage(
-                    "DESCRIPTION:\n"
+                    "PROMPT:\n"
+                    + state["prompt"]
+                    + "\n\n---\n\nGRID SIZE:\n"
+                    + f"x={state['size_x']}, y={state['size_y']}, z={state['size_z']}"
+                    + "\n\n---\n\nDESCRIPTION:\n"
                     + state.get("description", "")
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
@@ -84,7 +108,11 @@ def define_cells(state: MainWorkflowState) -> MainWorkflowState:
         {
             "messages": [
                 HumanMessage(
-                    "DESCRIPTION:\n"
+                    "PROMPT:\n"
+                    + state["prompt"]
+                    + "\n\n---\n\nGRID SIZE:\n"
+                    + f"x={state['size_x']}, y={state['size_y']}, z={state['size_z']}"
+                    + "\n\n---\n\nDESCRIPTION:\n"
                     + state.get("description", "")
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
@@ -100,11 +128,7 @@ def define_cells(state: MainWorkflowState) -> MainWorkflowState:
                             for i in state.get("interfaces", [])
                         ]
                     )
-                    + "\n\n---\n\nGRID SIZE:\n"
-                    + f"x={state['size_x']}, y={state['size_y']}, z={state['size_z']}"
-                    + "\n\n---\n\nNEXT CELL:\n"
-                    + f"x={next_x}, y={next_y}, z={next_z}"
-                    + "\n\n---\n\nCURRENT GRID CONFIGURATION:\n"
+                    + "\n\n---\n\nCURRENT MODEL STATE:\n"
                     + "\n".join(
                         (
                             f"z={z}:\n"
@@ -119,6 +143,8 @@ def define_cells(state: MainWorkflowState) -> MainWorkflowState:
                         if layers
                         else "None"
                     )
+                    + "\n\n---\n\nNEXT CELL:\n"
+                    + f"x={next_x}, y={next_y}, z={next_z}"
                 )
             ]
         }

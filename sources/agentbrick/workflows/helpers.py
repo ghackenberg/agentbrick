@@ -83,22 +83,39 @@ def visualize_components_and_interfaces(state: MainWorkflowState) -> None:
     show()
 
 
-COLORS = ['red', 'green', 'blue', 'yellow', 'cyan', 'magenta', 'orange', 'purple', 'brown', 'pink']
+COLORS = [
+    "red",
+    "green",
+    "blue",
+    "yellow",
+    "cyan",
+    "magenta",
+    "orange",
+    "purple",
+    "brown",
+    "pink",
+]
 
 
 def visualize_grid_configuration(state: MainWorkflowState) -> None:
 
     colors: dict[str, str] = {}
 
-    voxels = zeros((state.get("size_x", 0), state.get("size_y", 0), state.get("size_z", 0)), dtype=bool)
+    voxels = zeros(
+        (state.get("size_x", 0), state.get("size_y", 0), state.get("size_z", 0)),
+        dtype=bool,
+    )
 
     for z, layer in enumerate(state.get("layers", [])):
         for y, row in enumerate(layer["rows"]):
             for x, cell in enumerate(row["cells"]):
                 if cell.upper() != "EMPTY":
                     voxels[x, y, z] = True
-    
-    facecolors = zeros((state.get("size_x", 0), state.get("size_y", 0), state.get("size_z", 0)), dtype=str)
+
+    facecolors = zeros(
+        (state.get("size_x", 0), state.get("size_y", 0), state.get("size_z", 0)),
+        dtype=str,
+    )
 
     for z, layer in enumerate(state.get("layers", [])):
         for y, row in enumerate(layer["rows"]):
