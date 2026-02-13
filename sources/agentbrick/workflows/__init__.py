@@ -22,7 +22,7 @@ def generate_description(state: MainWorkflowState) -> MainWorkflowState:
 
 def extract_components(state: MainWorkflowState) -> MainWorkflowState:
     answer = extract_components_agent.invoke(
-        {"messages": [HumanMessage(state["description"])]}
+        {"messages": [HumanMessage(state.get("description", ""))]}
     )
     message = answer["messages"][-1]
     if isinstance(message, AIMessage):
@@ -54,12 +54,12 @@ def extract_interfaces(state: MainWorkflowState) -> MainWorkflowState:
             "messages": [
                 HumanMessage(
                     "DESCRIPTION:\n"
-                    + state["description"]
+                    + state.get("description", "")
                     + "\n\n---\n\nCOMPONENTS:\n"
                     + "\n".join(
                         [
                             f"{c['name']} - {c['description']}"
-                            for c in state["components"]
+                            for c in state.get("components", [])
                         ]
                     )
                 )

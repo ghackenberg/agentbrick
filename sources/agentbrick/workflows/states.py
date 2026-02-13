@@ -1,4 +1,4 @@
-from typing import List, Optional, TypedDict
+from typing import List, NotRequired, TypedDict
 
 
 class ModelComponent(TypedDict):
@@ -14,6 +14,6 @@ class ModelInterface(TypedDict):
 
 class MainWorkflowState(TypedDict):
     prompt: str
-    description: str
-    components: List[ModelComponent]
-    interfaces: List[ModelInterface]
+    description: NotRequired[str]
+    components: NotRequired[List[ModelComponent]]
+    interfaces: NotRequired[List[ModelInterface]]
