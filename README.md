@@ -10,8 +10,10 @@
 from agentbrick.workflows import main_workflow
 
 main_workflow.invoke({
-  "prompt": "[Intial model description]",
-  "size_x": 5, "size_y": 5, "size_z": 5
+  "prompt": "House", # Initial model description
+  "size_x": 5, # Size of the target voxel grid in x direction
+  "size_y": 5, # Size of the target voxel grid in y direction
+  "size_z": 5  # Size of the target voxel grid in z direction
 })
 ```
 
